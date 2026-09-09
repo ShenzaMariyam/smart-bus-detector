@@ -3,8 +3,7 @@ import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Buses from "./pages/Buses";
 import MapPage from "./pages/MapPage";
-
-import { startBusSimulation } from "./services/firebase/busSimulator";
+import BusDetails from "./pages/BusDetails";
 
 function App() {
   const [currentPath, setCurrentPath] = useState(
@@ -18,31 +17,51 @@ function App() {
 
     window.addEventListener("popstate", handlePopState);
 
-    return () =>
+    return () => {
       window.removeEventListener(
         "popstate",
         handlePopState
       );
-  }, []);
-
-  // Start bus simulation for the whole application
-  useEffect(() => {
-    const stopSimulation = startBusSimulation();
-
-    return () => {
-      stopSimulation();
     };
   }, []);
 
-  if (currentPath === "/map") {
-    return <MapPage onNavigate={setCurrentPath} />;
+  const navigate = (path) => {
+    window.history.pushState({}, "", path);
+    setCurrentPath(path);
+  };
+
+  // Bus Details
+  if (currentPath.startsWith("/buses/")) {
+    const busId = currentPath.split("/")[2];
+
+    return (
+      <BusDetails
+        busId={busId}
+        onNavigate={navigate}
+      />
+    );
   }
 
+  // Buses
   if (currentPath === "/buses") {
-    return <Buses onNavigate={setCurrentPath} />;
+    return (
+      <Buses
+        onNavigate={navigate}
+      />
+    );
   }
 
-  return <Home onNavigate={setCurrentPath} />;
+  // Map
+  if (currentPath === "/map") {
+    return <MapPage />;
+  }
+
+  // Home
+  return (
+    <Home
+      onNavigate={navigate}
+    />
+  );
 }
 
 export default App;
