@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+
 import {
   listenToBuses,
   updateBusLocation
 } from "../services/firebase/busService";
-import { startBusSimulation } from "../services/firebase/busSimulator";
+
+import {
+  calculateDistance,
+  calculateETA
+} from "../services/eta/etaCalculator";
 
 function Buses() {
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const unsubscribe = listenToBuses((data) => {
-    setBuses(data);
-    setLoading(false);
-  });
+    const unsubscribe = listenToBuses((data) => {
+      setBuses(data);
+      setLoading(false);
+    });
 
-  const stopSimulation = startBusSimulation();
-
-  return () => {
-    unsubscribe();
-    stopSimulation();
-  };
-}, []);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <>
@@ -39,44 +41,63 @@ function Buses() {
           <p>Loading buses...</p>
         ) : (
           <div className="bus-list">
-            {buses.map((bus) => (
-              <div className="bus-card" key={bus.id}>
-                <h2>🚌 Bus {bus.busNumber}</h2>
+            {buses.map((bus) => {
+              const distance = calculateDistance(
+                bus.latitude,
+                bus.longitude,
+                bus.destinationLatitude,
+                bus.destinationLongitude
+              );
 
-                <p>
-                  <strong>Route:</strong> {bus.route}
-                </p>
+              const calculatedETA = calculateETA(
+                distance,
+                bus.speed
+              );
 
-                <p>
-                  <strong>ETA:</strong> {bus.eta} minutes
-                </p>
+              return (
+                <div className="bus-card" key={bus.id}>
+                  <h2>🚌 Bus {bus.busNumber}</h2>
 
-                <p>
-                  <strong>Status:</strong> {bus.status}
-                </p>
+                  <p>
+                    <strong>Route:</strong> {bus.route}
+                  </p>
 
-                <p>
-                  <strong>Speed:</strong> {bus.speed} km/h
-                </p>
+                  <p>
+                    <strong>ETA:</strong> {calculatedETA} minutes
+                  </p>
 
-                <p>
-                  <strong>Location:</strong>{" "}
-                  {bus.latitude}, {bus.longitude}
-                </p>
+                  <p>
+                    <strong>Distance:</strong>{" "}
+                    {distance.toFixed(2)} km
+                  </p>
 
-                <button
-                  onClick={() =>
-                    updateBusLocation(
-                      bus.id,
-                      bus.latitude + 0.001,
-                      bus.longitude + 0.001
-                    )
-                  }
-                >
-                  Move Bus
-                </button>
-              </div>
-            ))}
+                  <p>
+                    <strong>Status:</strong> {bus.status}
+                  </p>
+
+                  <p>
+                    <strong>Speed:</strong> {bus.speed} km/h
+                  </p>
+
+                  <p>
+                    <strong>Location:</strong>{" "}
+                    {bus.latitude}, {bus.longitude}
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      updateBusLocation(
+                        bus.id,
+                        bus.latitude + 0.001,
+                        bus.longitude + 0.001
+                      )
+                    }
+                  >
+                    Move Bus
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </main>

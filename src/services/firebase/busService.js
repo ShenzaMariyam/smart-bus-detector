@@ -1,61 +1,64 @@
 import {
-  collection,
-  doc,
-  getDocs,
-  onSnapshot,
-  updateDoc
+    collection,
+    doc,
+    getDocs,
+    onSnapshot,
+    updateDoc
 } from "firebase/firestore";
 
 import { db } from "./firebase";
 
 export async function getBuses() {
-  const snapshot = await getDocs(
-    collection(db, "buses")
-  );
+    const snapshot = await getDocs(
+        collection(db, "buses")
+    );
 
-  return snapshot.docs.map((document) => ({
-    id: document.id,
-    ...document.data()
-  }));
+    return snapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data()
+    }));
 }
 
 export function listenToBuses(callback) {
-  return onSnapshot(
-    collection(db, "buses"),
-    (snapshot) => {
-      const buses = snapshot.docs.map((document) => ({
-        id: document.id,
-        ...document.data()
-      }));
+    return onSnapshot(
+        collection(db, "buses"),
+        (snapshot) => {
+            const buses = snapshot.docs.map((document) => ({
+                id: document.id,
+                ...document.data()
+            }));
 
-      callback(buses);
-    }
-  );
+            callback(buses);
+        }
+    );
 }
 
 export async function updateBusLocation(
-  busId,
-  latitude,
-  longitude
+    busId,
+    latitude,
+    longitude,
+    eta
 ) {
-  try {
-    const busRef = doc(db, "buses", busId);
+    try {
+        const busRef = doc(db, "buses", busId);
 
-    await updateDoc(busRef, {
-      latitude: latitude,
-      longitude: longitude
-    });
+        await updateDoc(busRef, {
+            latitude: latitude,
+            longitude: longitude,
+            eta: eta
+        });
 
-    console.log(
-      "✅ Firebase updated:",
-      busId,
-      latitude,
-      longitude
-    );
-  } catch (error) {
-    console.error(
-      "❌ Firebase update failed:",
-      error
-    );
-  }
+        console.log(
+            "✅ Firebase updated:",
+            busId,
+            latitude,
+            longitude,
+            eta
+        );
+    } catch (error) {
+        console.error(
+            "❌ Firebase update failed:",
+            error
+        );
+    }
 }
