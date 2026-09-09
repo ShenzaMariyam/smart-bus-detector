@@ -1,13 +1,84 @@
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import BusList from "../components/BusList";
+import {
+  listenToBuses,
+  updateBusLocation
+} from "../services/firebase/busService";
+import { startBusSimulation } from "../services/firebase/busSimulator";
 
-function Buses({ onNavigate }) {
+function Buses() {
+  const [buses, setBuses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  const unsubscribe = listenToBuses((data) => {
+    setBuses(data);
+    setLoading(false);
+  });
+
+  const stopSimulation = startBusSimulation();
+
+  return () => {
+    unsubscribe();
+    stopSimulation();
+  };
+}, []);
+
   return (
     <>
-      <Navbar onNavigate={onNavigate} />
+      <Navbar />
 
       <main>
-        <BusList />
+        <section className="page-header">
+          <h1>Available Buses 🚌</h1>
+
+          <p>Select a bus to view its details.</p>
+        </section>
+
+        {loading ? (
+          <p>Loading buses...</p>
+        ) : (
+          <div className="bus-list">
+            {buses.map((bus) => (
+              <div className="bus-card" key={bus.id}>
+                <h2>🚌 Bus {bus.busNumber}</h2>
+
+                <p>
+                  <strong>Route:</strong> {bus.route}
+                </p>
+
+                <p>
+                  <strong>ETA:</strong> {bus.eta} minutes
+                </p>
+
+                <p>
+                  <strong>Status:</strong> {bus.status}
+                </p>
+
+                <p>
+                  <strong>Speed:</strong> {bus.speed} km/h
+                </p>
+
+                <p>
+                  <strong>Location:</strong>{" "}
+                  {bus.latitude}, {bus.longitude}
+                </p>
+
+                <button
+                  onClick={() =>
+                    updateBusLocation(
+                      bus.id,
+                      bus.latitude + 0.001,
+                      bus.longitude + 0.001
+                    )
+                  }
+                >
+                  Move Bus
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </>
   );
