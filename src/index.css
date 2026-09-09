@@ -1,111 +1,546 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0b1220;
+  color: #f8fafc;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+/* =========================
+   APP LAYOUT
+========================= */
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  background: #0b1220;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: #111c31;
+  border-right: 1px solid #24324a;
+  padding: 25px 18px;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 8px 35px;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
+.logo-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  background: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.logo span {
+  color: #60a5fa;
+  font-size: 14px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  transition: 0.2s;
+}
+
+.nav-item span {
+  width: 22px;
+  font-size: 18px;
+}
+
+.nav-item:hover {
+  background: #172640;
+  color: white;
+}
+
+.nav-item.active {
+  background: #2563eb;
+  color: white;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid #24324a;
+  padding-top: 22px;
+}
+
+.tracking-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 11px;
+  height: 11px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+.tracking-status strong {
+  display: block;
+  font-size: 13px;
+}
+
+.tracking-status small {
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+
+.main-content {
+  flex: 1;
+  padding: 30px 38px;
+  max-width: 1500px;
+  margin: auto;
+  width: 100%;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.topbar h1 {
+  margin: 0 0 7px;
+  font-size: 30px;
+}
+
+.topbar p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.location {
+  background: #172640;
+  border: 1px solid #263957;
+  padding: 12px 18px;
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+/* =========================
+   STAT CARDS
+========================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: #111c31;
+  border: 1px solid #24324a;
+  border-radius: 15px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+}
+
+.stat-icon.blue {
+  background: #1d4ed8;
+}
+
+.stat-icon.green {
+  background: #15803d;
+}
+
+.stat-icon.purple {
+  background: #7c3aed;
+}
+
+.stat-card span {
+  display: block;
+  color: #94a3b8;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 24px;
+}
+
+.stat-card small {
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 25px;
+}
+
+.bus-section,
+.map-card {
+  background: #111c31;
+  border: 1px solid #24324a;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.section-header,
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2,
+.map-header h2 {
+  margin: 0 0 5px;
+  font-size: 20px;
+}
+
+.section-header p,
+.map-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.view-all,
+.map-header button {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 9px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.view-all:hover,
+.map-header button:hover {
+  background: #1d4ed8;
+}
+
+/* =========================
+   BUS CARDS
+========================= */
+
+.bus-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bus-card {
+  display: grid;
+  grid-template-columns: 45px 1fr 70px 80px 20px;
+  align-items: center;
+  gap: 12px;
+  background: #172640;
+  border: 1px solid #263957;
+  padding: 14px;
+  border-radius: 12px;
+  transition: 0.2s;
+}
+
+.bus-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.bus-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bus-icon.blue {
+  background: #2563eb;
+}
+
+.bus-icon.purple {
+  background: #7c3aed;
+}
+
+.bus-icon.orange {
+  background: #d97706;
+}
+
+.bus-icon.green {
+  background: #16a34a;
+}
+
+.bus-info h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.bus-info p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.bus-eta span {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.bus-eta strong {
+  font-size: 15px;
+}
+
+.on-time,
+.delayed {
+  padding: 5px 8px;
+  border-radius: 20px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.on-time {
+  color: #4ade80;
+  background: #14532d;
+}
+
+.delayed {
+  color: #fbbf24;
+  background: #713f12;
+}
+
+.arrow {
+  font-size: 25px;
+  color: #64748b;
+}
+
+/* =========================
+   MAP PREVIEW
+========================= */
+
+.map-preview {
+  height: 390px;
+  border-radius: 12px;
+  background: #0d1728;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-road {
+  position: absolute;
+  height: 3px;
+  background: #263957;
+  transform: rotate(-25deg);
+}
+
+.road-1 {
+  width: 500px;
+  top: 120px;
+  left: -50px;
+}
+
+.road-2 {
+  width: 450px;
+  top: 260px;
+  left: 20px;
+  transform: rotate(25deg);
+}
+
+.road-3 {
+  width: 350px;
+  top: 190px;
+  left: 100px;
+  transform: rotate(75deg);
+}
+
+.map-route {
+  position: absolute;
+  width: 260px;
+  height: 150px;
+  border: 4px solid #2563eb;
+  border-radius: 50%;
+  top: 105px;
+  left: 70px;
+  transform: rotate(-20deg);
+}
+
+.map-location {
+  position: absolute;
+  background: #172640;
+  border: 1px solid #334b70;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+
+.college {
+  bottom: 40px;
+  left: 35px;
+}
+
+.center {
+  top: 45px;
+  right: 35px;
+}
+
+.map-bus {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  background: #2563eb;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.bus-one {
+  top: 150px;
+  left: 170px;
+}
+
+.bus-two {
+  top: 245px;
+  left: 300px;
+  background: #7c3aed;
+}
+
+/* =========================
+   OLD BUS LIST
+========================= */
+
+.existing-bus-list {
+  margin-top: 25px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+  .sidebar {
+    width: 190px;
+  }
+
+  .main-content {
+    padding: 25px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
   }
 }
-p {
-  margin: 0;
-}
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+@media (max-width: 700px) {
+  .app-layout {
+    flex-direction: column;
+  }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .logo {
+    padding-bottom: 15px;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+  }
+
+  .nav-item {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .sidebar-bottom {
+    display: none;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bus-card {
+    grid-template-columns: 42px 1fr 60px;
+  }
+
+  .bus-card .on-time,
+  .bus-card .delayed,
+  .bus-card .arrow {
+    display: none;
+  }
 }
