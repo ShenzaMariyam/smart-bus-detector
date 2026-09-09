@@ -1,3 +1,7 @@
+/* =========================
+   GLOBAL
+========================= */
+
 * {
   box-sizing: border-box;
 }
@@ -288,15 +292,30 @@ body {
   gap: 12px;
 }
 
+/* Main bus cards used on /buses page */
+
+.bus-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .bus-card {
+  width: 94%;
+  max-width: 1200px;
+  margin: 0 auto;
+
   display: grid;
-  grid-template-columns: 45px 1fr 70px 80px 20px;
+  grid-template-columns: 130px minmax(200px, 1fr) 110px 120px 130px;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
+
   background: #172640;
   border: 1px solid #263957;
-  padding: 14px;
+  padding: 18px 22px;
   border-radius: 12px;
+
   transition: 0.2s;
 }
 
@@ -304,6 +323,67 @@ body {
   border-color: #3b82f6;
   transform: translateY(-1px);
 }
+
+.bus-card h3 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.bus-card p {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.bus-card p strong {
+  color: #cbd5e1;
+}
+
+.bus-card button {
+  width: 120px;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.bus-card button:hover {
+  background: #1d4ed8;
+}
+
+/* =========================
+   BUS DETAILS
+========================= */
+
+.bus-details {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 5px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #0d1728;
+  border: 1px solid #334b70;
+}
+
+.bus-details h4 {
+  margin: 0 0 12px;
+  color: #60a5fa;
+  font-size: 16px;
+}
+
+.bus-details p {
+  margin: 7px 0;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+/* =========================
+   DASHBOARD BUS INFO
+========================= */
 
 .bus-icon {
   width: 42px;
@@ -475,6 +555,42 @@ body {
 }
 
 /* =========================
+   NAVBAR
+========================= */
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 35px;
+  background: #111c31;
+  border-bottom: 1px solid #24324a;
+}
+
+nav h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+nav>div {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+nav a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 15px;
+  padding: 8px 4px;
+  transition: 0.2s;
+}
+
+nav a:hover {
+  color: #60a5fa;
+}
+
+/* =========================
    RESPONSIVE
 ========================= */
 
@@ -489,6 +605,12 @@ body {
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .bus-card {
+    width: 96%;
+    grid-template-columns: 110px 1fr 90px 100px 120px;
+    gap: 12px;
   }
 }
 
@@ -534,13 +656,36 @@ body {
     grid-template-columns: 1fr;
   }
 
+  /* Mobile bus cards */
   .bus-card {
-    grid-template-columns: 42px 1fr 60px;
+    width: 94%;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 18px;
+  }
+
+  .bus-card button {
+    width: 130px;
   }
 
   .bus-card .on-time,
   .bus-card .delayed,
   .bus-card .arrow {
     display: none;
+  }
+
+  .bus-details {
+    grid-column: 1;
+  }
+
+  /* Mobile navbar */
+  nav {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  nav>div {
+    gap: 25px;
   }
 }

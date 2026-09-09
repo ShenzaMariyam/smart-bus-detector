@@ -1,4 +1,8 @@
+import { useState } from "react";
+
 function BusCard({ bus }) {
+  const [showDetails, setShowDetails] = useState(false);
+
   return (
     <div className="bus-card">
       <h3>🚌 Bus {bus.busNumber}</h3>
@@ -13,7 +17,31 @@ function BusCard({ bus }) {
         <strong>Status:</strong> {bus.status}
       </p>
 
-      <button>View Details</button>
+      <button onClick={() => setShowDetails(!showDetails)}>
+        {showDetails ? "Hide Details" : "View Details"}
+      </button>
+
+      {showDetails && (
+        <div className="bus-details">
+          <h4>Bus Details</h4>
+
+          <p>
+            <strong>Bus Number:</strong> {bus.busNumber}
+          </p>
+
+          <p>
+            <strong>Route:</strong> {bus.route}
+          </p>
+
+          <p>
+            <strong>Estimated Arrival:</strong> {bus.eta} minutes
+          </p>
+
+          <p>
+            <strong>Status:</strong> {bus.status}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
