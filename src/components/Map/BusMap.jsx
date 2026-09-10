@@ -6,13 +6,15 @@ import {
     Marker,
     Popup,
     Polyline,
-    Tooltip
+    Tooltip,
+    useMap
 } from "react-leaflet";
 
 import L from "leaflet";
 
 import { listenToBuses } from "../../services/firebase/busService";
 import { getRoutes } from "../../services/firebase/routeService";
+import { getUserLocation } from "../../services/location/userLocation";
 
 const busIcon = L.divIcon({
     html: '<div style="font-size: 45px;">🚌</div>',
@@ -21,7 +23,6 @@ const busIcon = L.divIcon({
     iconAnchor: [17, 17]
 });
 
-// Destination icon
 const destinationIcon = L.divIcon({
     html: '<div style="font-size: 30px;">🏁</div>',
     className: "destination-icon",
@@ -29,11 +30,38 @@ const destinationIcon = L.divIcon({
     iconAnchor: [15, 15]
 });
 
+const userIcon = L.divIcon({
+    html: '<div style="font-size: 30px;">📍</div>',
+    className: "user-icon",
+    iconSize: [30, 30],
+    iconAnchor: [15, 30]
+});
+
+function MapCenterUpdater({ userLocation }) {
+    const map = useMap();
+
+    useEffect(() => {
+        if (userLocation) {
+            map.setView(
+                [
+                    userLocation.latitude,
+                    userLocation.longitude
+                ],
+                13
+            );
+        }
+    }, [userLocation, map]);
+
+    return null;
+}
+
 function BusMap() {
     const [buses, setBuses] = useState([]);
     const [routes, setRoutes] = useState([]);
+    const [userLocation, setUserLocation] = useState(null);
+    const [locationError, setLocationError] = useState("");
 
-    // Listen for live bus locations
+    // Listen for live bus updates
     useEffect(() => {
         const unsubscribe = listenToBuses((data) => {
             setBuses(data);
@@ -42,7 +70,7 @@ function BusMap() {
         return () => unsubscribe();
     }, []);
 
-    // Load routes from Firebase
+    // Load routes
     useEffect(() => {
         async function loadRoutes() {
             try {
@@ -50,7 +78,10 @@ function BusMap() {
 
                 setRoutes(data);
 
-                console.log("🗺️ Routes loaded:", data);
+                console.log(
+                    "🗺️ Routes loaded:",
+                    data
+                );
             } catch (error) {
                 console.error(
                     "❌ Error loading routes:",
@@ -62,32 +93,68 @@ function BusMap() {
         loadRoutes();
     }, []);
 
+    // Get user's current location
+    useEffect(() => {
+        async function loadUserLocation() {
+            try {
+                const location =
+                    await getUserLocation();
+
+                setUserLocation(location);
+
+                console.log(
+                    "📍 User location loaded:",
+                    location
+                );
+            } catch (error) {
+                console.error(
+                    "❌ Could not get user location:",
+                    error
+                );
+
+                setLocationError(
+                    "Unable to access your location."
+                );
+            }
+        }
+
+        loadUserLocation();
+    }, []);
+
     return (
         <div style={{ position: "relative" }}>
+
             <MapContainer
-                center={[12.9716, 77.5946]}
+                center={[12.8735, 74.8535]}
                 zoom={13}
                 style={{
                     height: "500px",
                     width: "100%"
                 }}
             >
+                <MapCenterUpdater
+        userLocation={userLocation}
+    />
+
                 <TileLayer
                     attribution="&copy; OpenStreetMap contributors"
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
-                {/* Draw routes */}
+                {/* Bus Routes */}
                 {routes.map((route, index) => {
+
                     if (!route.points) {
                         return null;
                     }
 
                     const routeCoordinates =
-                        route.points.map((point) => [
-                            point.latitude,
-                            point.longitude
-                        ]);
+                        route.points.map(
+                            (point) => [
+                                point.latitude,
+                                point.longitude
+                            ]
+                        );
 
                     return (
                         <Polyline
@@ -104,7 +171,7 @@ function BusMap() {
                     );
                 })}
 
-                {/* Show moving buses */}
+                {/* Live Buses */}
                 {buses.map((bus) => (
                     <Marker
                         key={bus.id}
@@ -114,7 +181,6 @@ function BusMap() {
                         ]}
                         icon={busIcon}
                     >
-                        {/* Bus information */}
                         <Tooltip
                             permanent
                             direction="top"
@@ -122,13 +188,16 @@ function BusMap() {
                         >
                             🚌 Bus {bus.busNumber}
                             <br />
-                            ETA: {bus.eta ?? "Calculating"} min
+                            ETA:{" "}
+                            {bus.eta ??
+                                "Calculating"}{" "}
+                            min
                         </Tooltip>
 
-                        {/* Detailed bus information */}
                         <Popup>
                             <strong>
-                                🚌 Bus {bus.busNumber}
+                                🚌 Bus{" "}
+                                {bus.busNumber}
                             </strong>
 
                             <br />
@@ -137,7 +206,10 @@ function BusMap() {
 
                             <br />
 
-                            ETA: {bus.eta ?? "Calculating"} minutes
+                            ETA:{" "}
+                            {bus.eta ??
+                                "Calculating"}{" "}
+                            minutes
 
                             <br />
 
@@ -145,7 +217,8 @@ function BusMap() {
 
                             <br />
 
-                            Speed: {bus.speed} km/h
+                            Speed:{" "}
+                            {bus.speed} km/h
 
                             <br />
 
@@ -156,11 +229,14 @@ function BusMap() {
                     </Marker>
                 ))}
 
-                {/* Destination markers */}
+                {/* Bus Destinations */}
                 {buses.map((bus) => {
+
                     if (
-                        bus.destinationLatitude == null ||
-                        bus.destinationLongitude == null
+                        bus.destinationLatitude ==
+                            null ||
+                        bus.destinationLongitude ==
+                            null
                     ) {
                         return null;
                     }
@@ -200,7 +276,67 @@ function BusMap() {
                         </Marker>
                     );
                 })}
+
+                {/* User Location */}
+                {userLocation && (
+                    <Marker
+                        position={[
+                            userLocation.latitude,
+                            userLocation.longitude
+                        ]}
+                        icon={userIcon}
+                    >
+                        <Tooltip
+                            permanent
+                            direction="top"
+                            offset={[0, -25]}
+                        >
+                            📍 You are here
+                        </Tooltip>
+
+                        <Popup>
+                            <strong>
+                                📍 Your Location
+                            </strong>
+
+                            <br />
+
+                            Latitude:{" "}
+                            {userLocation.latitude.toFixed(
+                                6
+                            )}
+
+                            <br />
+
+                            Longitude:{" "}
+                            {userLocation.longitude.toFixed(
+                                6
+                            )}
+                        </Popup>
+                    </Marker>
+                )}
+
             </MapContainer>
+
+            {/* Location Status */}
+            {locationError && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "20px",
+                        left: "20px",
+                        backgroundColor: "white",
+                        color: "red",
+                        padding: "10px 15px",
+                        borderRadius: "8px",
+                        boxShadow:
+                            "0 2px 8px rgba(0,0,0,0.25)",
+                        zIndex: 1000
+                    }}
+                >
+                    📍 {locationError}
+                </div>
+            )}
 
             {/* Map Legend */}
             <div
@@ -221,8 +357,16 @@ function BusMap() {
             >
                 <strong>Map Legend</strong>
 
-                <div style={{ marginTop: "8px" }}>
+                <div
+                    style={{
+                        marginTop: "8px"
+                    }}
+                >
                     🚌 Bus = Live bus
+                </div>
+
+                <div>
+                    📍 You = Your location
                 </div>
 
                 <div>
@@ -237,6 +381,7 @@ function BusMap() {
                     ╌╌ Dashed = Other route
                 </div>
             </div>
+
         </div>
     );
 }
