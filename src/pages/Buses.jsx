@@ -18,12 +18,17 @@ import {
 
 import { startBusSimulation } from "../services/firebase/busSimulator";
 
+import { getUserLocation } from "../services/location/userLocation";
+
 // Keeps track of buses that already sent a notification
 const notifiedBuses = new Set();
 
 function Buses({ onNavigate }) {
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [userLocation, setUserLocation] =
+    useState(null);
 
   const [notificationEnabled, setNotificationEnabled] =
     useState(
@@ -50,6 +55,30 @@ function Buses({ onNavigate }) {
     return () => {
       unsubscribe();
     };
+  }, []);
+
+  // Get user's current location
+  useEffect(() => {
+    async function loadUserLocation() {
+      try {
+        const location =
+          await getUserLocation();
+
+        setUserLocation(location);
+
+        console.log(
+          "📍 User location for nearest bus:",
+          location
+        );
+      } catch (error) {
+        console.error(
+          "❌ Could not get user location:",
+          error
+        );
+      }
+    }
+
+    loadUserLocation();
   }, []);
 
   // Enable browser notifications
@@ -121,6 +150,33 @@ function Buses({ onNavigate }) {
     });
   }, [buses, notificationEnabled]);
 
+  // Find the nearest bus to the user
+  let nearestBus = null;
+  let nearestDistance = null;
+
+  if (
+    userLocation &&
+    buses.length > 0
+  ) {
+    buses.forEach((bus) => {
+      const distance =
+        calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          bus.latitude,
+          bus.longitude
+        );
+
+      if (
+        nearestDistance === null ||
+        distance < nearestDistance
+      ) {
+        nearestDistance = distance;
+        nearestBus = bus;
+      }
+    });
+  }
+
   return (
     <>
       <Navbar />
@@ -155,6 +211,62 @@ function Buses({ onNavigate }) {
               : "🔔 Enable Notifications"}
           </button>
         </section>
+
+        {/* Nearest Bus */}
+        {nearestBus && (
+  <div
+    style={{
+      margin: "20px 0",
+      padding: "18px",
+      borderRadius: "10px",
+      backgroundColor: "#e0f2fe",
+      color: "#000000",
+      border: "2px solid #0284c7"
+    }}
+  >
+          
+            <h2>
+              📍 Nearest Bus
+            </h2>
+
+            <p>
+              🚌{" "}
+              <strong>
+                Bus {nearestBus.busNumber}
+              </strong>
+            </p>
+
+            <p>
+              <strong>
+                Route:
+              </strong>{" "}
+              {nearestBus.route}
+            </p>
+
+            <p>
+              <strong>
+                Distance from you:
+              </strong>{" "}
+              {nearestDistance.toFixed(2)} km
+            </p>
+
+            <p>
+              <strong>
+                ETA:
+              </strong>{" "}
+              {calculateETA(
+                calculateDistance(
+                  nearestBus.latitude,
+                  nearestBus.longitude,
+                  nearestBus.destinationLatitude,
+                  nearestBus.destinationLongitude
+                ),
+                nearestBus.speed
+              )}{" "}
+              minutes
+            </p>
+          </div>
+        )}
 
         {loading ? (
           <p>Loading buses...</p>

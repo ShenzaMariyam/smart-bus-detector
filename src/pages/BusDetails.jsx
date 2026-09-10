@@ -10,8 +10,12 @@ import {
     calculateETA
 } from "../services/eta/etaCalculator";
 
+import { getUserLocation } from "../services/location/userLocation";
+
 function BusDetails({ busId, onNavigate }) {
     const [bus, setBus] = useState(null);
+    const [userLocation, setUserLocation] =
+        useState(null);
 
     useEffect(() => {
         const unsubscribe = listenToBuses((buses) => {
@@ -22,8 +26,34 @@ function BusDetails({ busId, onNavigate }) {
             setBus(selectedBus || null);
         });
 
+
+
         return () => unsubscribe();
     }, [busId]);
+
+    // Get user's current location
+    useEffect(() => {
+        async function loadUserLocation() {
+            try {
+                const location =
+                    await getUserLocation();
+
+                setUserLocation(location);
+
+                console.log(
+                    "📍 User location in Bus Details:",
+                    location
+                );
+            } catch (error) {
+                console.error(
+                    "❌ Could not get user location:",
+                    error
+                );
+            }
+        }
+
+        loadUserLocation();
+    }, []);
 
     if (!bus) {
         return (
@@ -59,6 +89,18 @@ function BusDetails({ busId, onNavigate }) {
         distance,
         bus.speed
     );
+
+    let distanceFromUser = null;
+
+    if (userLocation) {
+        distanceFromUser =
+            calculateDistance(
+                userLocation.latitude,
+                userLocation.longitude,
+                bus.latitude,
+                bus.longitude
+            );
+    }
 
     return (
         <>
@@ -161,6 +203,18 @@ function BusDetails({ busId, onNavigate }) {
 
                             <p>
                                 {distance.toFixed(2)} km
+                            </p>
+                        </div>
+                        {/* Distance from User */}
+                        <div>
+                            <strong>
+                                📍 Distance from You
+                            </strong>
+
+                            <p>
+                                {distanceFromUser !== null
+                                    ? `${distanceFromUser.toFixed(2)} km`
+                                    : "Locating..."}
                             </p>
                         </div>
 
