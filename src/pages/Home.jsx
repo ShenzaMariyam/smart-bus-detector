@@ -77,7 +77,7 @@ function Home({ onNavigate }) {
         <section className="stats-grid">
 
           <div className="stat-card">
-            <div className="stat-icon blue">🚌</div>
+            <div className="stat-icon">🚌</div>
             <div>
               <span>Nearby Buses</span>
               <strong>5</strong>
@@ -86,7 +86,7 @@ function Home({ onNavigate }) {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon green">◷</div>
+            <div className="stat-icon">◷</div>
             <div>
               <span>Next Bus</span>
               <strong>8 min</strong>
@@ -95,7 +95,7 @@ function Home({ onNavigate }) {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon purple">↔</div>
+            <div className="stat-icon">↔</div>
             <div>
               <span>Active Routes</span>
               <strong>4</strong>
@@ -127,52 +127,37 @@ function Home({ onNavigate }) {
             <div className="bus-cards">
 
               <div className="bus-card">
-                <div className="bus-icon blue">🚌</div>
+                <div className="bus-icon">🚌</div>
 
                 <div className="bus-info">
                   <h3>Bus 101</h3>
                   <p>College → City Center</p>
                 </div>
 
-                <div className="bus-eta">
-                  <span>ETA</span>
-                  <strong>8 min</strong>
-                </div>
-
                 <span className="on-time">On Time</span>
 
                 <span className="arrow">›</span>
               </div>
 
               <div className="bus-card">
-                <div className="bus-icon purple">🚌</div>
+                <div className="bus-icon">🚌</div>
 
                 <div className="bus-info">
                   <h3>Bus 105</h3>
                   <p>College → Railway Station</p>
                 </div>
 
-                <div className="bus-eta">
-                  <span>ETA</span>
-                  <strong>14 min</strong>
-                </div>
-
                 <span className="on-time">On Time</span>
 
                 <span className="arrow">›</span>
               </div>
 
               <div className="bus-card">
-                <div className="bus-icon orange">🚌</div>
+                <div className="bus-icon">🚌</div>
 
                 <div className="bus-info">
                   <h3>Bus 110</h3>
                   <p>City Center → College</p>
-                </div>
-
-                <div className="bus-eta">
-                  <span>ETA</span>
-                  <strong>22 min</strong>
                 </div>
 
                 <span className="delayed">Delayed</span>
@@ -181,16 +166,11 @@ function Home({ onNavigate }) {
               </div>
 
               <div className="bus-card">
-                <div className="bus-icon green">🚌</div>
+                <div className="bus-icon">🚌</div>
 
                 <div className="bus-info">
                   <h3>Bus 112</h3>
                   <p>College → Airport</p>
-                </div>
-
-                <div className="bus-eta">
-                  <span>ETA</span>
-                  <strong>28 min</strong>
                 </div>
 
                 <span className="on-time">On Time</span>

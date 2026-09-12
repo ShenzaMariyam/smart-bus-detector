@@ -161,7 +161,9 @@ function BusMap() {
                             key={route.id}
                             positions={routeCoordinates}
                             pathOptions={{
+                                color: index % 2 === 0 ? "#D32F2F" : "#B71C1C",
                                 weight: 5,
+                                opacity: 0.85,
                                 dashArray:
                                     index % 2 === 0
                                         ? undefined
@@ -325,12 +327,14 @@ function BusMap() {
                         position: "absolute",
                         top: "20px",
                         left: "20px",
-                        backgroundColor: "white",
-                        color: "red",
+                        backgroundColor: "#FFEBEE",
+                        color: "#B71C1C",
+                        border: "1px solid #FFCDD2",
                         padding: "10px 15px",
                         borderRadius: "8px",
+                        fontWeight: "600",
                         boxShadow:
-                            "0 2px 8px rgba(0,0,0,0.25)",
+                            "0 2px 8px rgba(211, 47, 47, 0.15)",
                         zIndex: 1000
                     }}
                 >
@@ -344,22 +348,26 @@ function BusMap() {
                     position: "absolute",
                     bottom: "20px",
                     right: "20px",
-                    backgroundColor: "#ffffff",
-                    color: "#000000",
-                    padding: "12px 16px",
-                    borderRadius: "8px",
+                    backgroundColor: "#FFFFFF",
+                    color: "#222222",
+                    border: "1px solid #FFCDD2",
+                    borderLeft: "4px solid #D32F2F",
+                    padding: "14px 18px",
+                    borderRadius: "10px",
                     boxShadow:
-                        "0 2px 8px rgba(0,0,0,0.25)",
+                        "0 4px 15px rgba(211, 47, 47, 0.12)",
                     zIndex: 1000,
-                    fontSize: "14px",
-                    lineHeight: "1.6"
+                    fontSize: "13px",
+                    lineHeight: "1.7"
                 }}
             >
-                <strong>Map Legend</strong>
+                <strong style={{ color: "#B71C1C", display: "block", fontSize: "14px", marginBottom: "4px" }}>
+                    Map Legend
+                </strong>
 
                 <div
                     style={{
-                        marginTop: "8px"
+                        marginTop: "4px"
                     }}
                 >
                     🚌 Bus = Live bus

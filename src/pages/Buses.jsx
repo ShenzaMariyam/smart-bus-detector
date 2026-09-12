@@ -195,12 +195,13 @@ function Buses({ onNavigate }) {
             style={{
               marginTop: "15px",
               padding: "10px 18px",
-              border: "none",
+              border: notificationEnabled ? "1px solid #D32F2F" : "none",
               borderRadius: "8px",
               backgroundColor: notificationEnabled
-                ? "#16a34a"
-                : "#2563eb",
-              color: "white",
+                ? "#FFEBEE"
+                : "#D32F2F",
+              color: notificationEnabled ? "#B71C1C" : "white",
+              fontWeight: 600,
               cursor: notificationEnabled
                 ? "default"
                 : "pointer"
@@ -217,15 +218,16 @@ function Buses({ onNavigate }) {
   <div
     style={{
       margin: "20px 0",
-      padding: "18px",
-      borderRadius: "10px",
-      backgroundColor: "#e0f2fe",
-      color: "#000000",
-      border: "2px solid #0284c7"
+      padding: "20px",
+      borderRadius: "12px",
+      backgroundColor: "#FFEBEE",
+      color: "#222222",
+      border: "2px solid #D32F2F",
+      boxShadow: "0 4px 15px rgba(211, 47, 47, 0.08)"
     }}
   >
           
-            <h2>
+            <h2 style={{ margin: "0 0 10px", color: "#B71C1C" }}>
               📍 Nearest Bus
             </h2>
 
@@ -249,22 +251,6 @@ function Buses({ onNavigate }) {
               </strong>{" "}
               {nearestDistance.toFixed(2)} km
             </p>
-
-            <p>
-              <strong>
-                ETA:
-              </strong>{" "}
-              {calculateETA(
-                calculateDistance(
-                  nearestBus.latitude,
-                  nearestBus.longitude,
-                  nearestBus.destinationLatitude,
-                  nearestBus.destinationLongitude
-                ),
-                nearestBus.speed
-              )}{" "}
-              minutes
-            </p>
           </div>
         )}
 
@@ -279,12 +265,6 @@ function Buses({ onNavigate }) {
                   bus.longitude,
                   bus.destinationLatitude,
                   bus.destinationLongitude
-                );
-
-              const calculatedETA =
-                calculateETA(
-                  distance,
-                  bus.speed
                 );
 
               return (
@@ -302,13 +282,6 @@ function Buses({ onNavigate }) {
                       Route:
                     </strong>{" "}
                     {bus.route}
-                  </p>
-
-                  <p>
-                    <strong>
-                      ETA:
-                    </strong>{" "}
-                    {calculatedETA} minutes
                   </p>
 
                   <p>
@@ -359,7 +332,10 @@ function Buses({ onNavigate }) {
                       )
                     }
                     style={{
-                      marginLeft: "10px"
+                      marginLeft: "10px",
+                      backgroundColor: "#FFFFFF",
+                      color: "#D32F2F",
+                      border: "1px solid #D32F2F"
                     }}
                   >
                     Move Bus

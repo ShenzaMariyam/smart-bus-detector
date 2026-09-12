@@ -120,13 +120,15 @@ function BusDetails({ busId, onNavigate }) {
                         marginBottom: "30px"
                     }}
                 >
-                    <h1>
+                    <h1 style={{ color: "#B71C1C", margin: "0 0 8px", fontSize: "32px", fontWeight: "800" }}>
                         🚌 Bus {bus.busNumber}
                     </h1>
 
                     <p
                         style={{
-                            fontSize: "18px"
+                            fontSize: "18px",
+                            color: "#555555",
+                            margin: 0
                         }}
                     >
                         {bus.route}
@@ -136,18 +138,22 @@ function BusDetails({ busId, onNavigate }) {
                 {/* Main Card */}
                 <div
                     style={{
-                        backgroundColor: "#1b2b49",
-                        border: "1px solid #2875e8",
-                        borderRadius: "12px",
-                        padding: "30px",
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #FFCDD2",
+                        borderLeft: "6px solid #D32F2F",
+                        borderRadius: "14px",
+                        padding: "32px",
+                        color: "#222222",
                         boxShadow:
-                            "0 4px 15px rgba(0,0,0,0.25)"
+                            "0 4px 20px rgba(211, 47, 47, 0.08)"
                     }}
                 >
                     <h2
                         style={{
-                            marginBottom: "25px"
+                            marginBottom: "25px",
+                            color: "#B71C1C",
+                            fontSize: "22px",
+                            fontWeight: "700"
                         }}
                     >
                         Bus Information
@@ -163,55 +169,34 @@ function BusDetails({ busId, onNavigate }) {
                         }}
                     >
                         {/* Bus Number */}
-                        <div>
-                            <strong>
+                        <div style={{ background: "#FDF7F7", padding: "16px", borderRadius: "10px", border: "1px solid #FFEBEE" }}>
+                            <strong style={{ color: "#B71C1C", display: "block", marginBottom: "6px" }}>
                                 🚌 Bus Number
                             </strong>
 
-                            <p>
+                            <p style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>
                                 {bus.busNumber}
                             </p>
                         </div>
 
                         {/* Status */}
-                        <div>
-                            <strong>
-                                🟢 Status
+                        <div style={{ background: "#FDF7F7", padding: "16px", borderRadius: "10px", border: "1px solid #FFEBEE" }}>
+                            <strong style={{ color: "#B71C1C", display: "block", marginBottom: "6px" }}>
+                                🔴 Status
                             </strong>
 
-                            <p>
+                            <p style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>
                                 {bus.status}
                             </p>
                         </div>
 
-                        {/* Speed */}
-                        <div>
-                            <strong>
-                                🚗 Speed
-                            </strong>
-
-                            <p>
-                                {bus.speed} km/h
-                            </p>
-                        </div>
-
-                        {/* Distance */}
-                        <div>
-                            <strong>
-                                📏 Distance
-                            </strong>
-
-                            <p>
-                                {distance.toFixed(2)} km
-                            </p>
-                        </div>
                         {/* Distance from User */}
-                        <div>
-                            <strong>
+                        <div style={{ background: "#FDF7F7", padding: "16px", borderRadius: "10px", border: "1px solid #FFEBEE" }}>
+                            <strong style={{ color: "#B71C1C", display: "block", marginBottom: "6px" }}>
                                 📍 Distance from You
                             </strong>
 
-                            <p>
+                            <p style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>
                                 {distanceFromUser !== null
                                     ? `${distanceFromUser.toFixed(2)} km`
                                     : "Locating..."}
@@ -219,62 +204,14 @@ function BusDetails({ busId, onNavigate }) {
                         </div>
 
                         {/* ETA */}
-                        <div>
-                            <strong>
+                        <div style={{ background: "#FFEBEE", padding: "16px", borderRadius: "10px", border: "1px solid #FFCDD2" }}>
+                            <strong style={{ color: "#B71C1C", display: "block", marginBottom: "6px" }}>
                                 ⏱️ Estimated Arrival
                             </strong>
 
-                            <p>
+                            <p style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#D32F2F" }}>
                                 {calculatedETA} minutes
                             </p>
-                        </div>
-                    </div>
-
-                    {/* Current Location */}
-                    <div
-                        style={{
-                            marginTop: "30px",
-                            paddingTop: "25px",
-                            borderTop:
-                                "1px solid rgba(255,255,255,0.2)"
-                        }}
-                    >
-                        <h3>
-                            📍 Current Location
-                        </h3>
-
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns:
-                                    "repeat(auto-fit, minmax(250px, 1fr))",
-                                gap: "20px",
-                                marginTop: "15px"
-                            }}
-                        >
-                            <div>
-                                <strong>
-                                    Latitude
-                                </strong>
-
-                                <p>
-                                    {bus.latitude.toFixed(
-                                        6
-                                    )}
-                                </p>
-                            </div>
-
-                            <div>
-                                <strong>
-                                    Longitude
-                                </strong>
-
-                                <p>
-                                    {bus.longitude.toFixed(
-                                        6
-                                    )}
-                                </p>
-                            </div>
                         </div>
                     </div>
 
@@ -284,14 +221,14 @@ function BusDetails({ busId, onNavigate }) {
                             marginTop: "20px",
                             paddingTop: "20px",
                             borderTop:
-                                "1px solid rgba(255,255,255,0.2)"
+                                "1px solid #FFEBEE"
                         }}
                     >
-                        <h3>
+                        <h3 style={{ color: "#B71C1C", margin: "0 0 10px", fontSize: "18px" }}>
                             🏁 Destination
                         </h3>
 
-                        <p>
+                        <p style={{ margin: 0, fontSize: "16px", color: "#333333", fontWeight: "500" }}>
                             {bus.route
                                 ?.split("→")[1]
                                 ?.trim() ||
@@ -312,6 +249,15 @@ function BusDetails({ busId, onNavigate }) {
                             onClick={() =>
                                 onNavigate("/map")
                             }
+                            style={{
+                                padding: "11px 20px",
+                                backgroundColor: "#D32F2F",
+                                color: "#FFFFFF",
+                                border: "none",
+                                borderRadius: "8px",
+                                fontWeight: "600",
+                                cursor: "pointer"
+                            }}
                         >
                             🗺️ View on Map
                         </button>
@@ -320,6 +266,15 @@ function BusDetails({ busId, onNavigate }) {
                             onClick={() =>
                                 onNavigate("/buses")
                             }
+                            style={{
+                                padding: "11px 20px",
+                                backgroundColor: "#FFEBEE",
+                                color: "#B71C1C",
+                                border: "1px solid #FFCDD2",
+                                borderRadius: "8px",
+                                fontWeight: "600",
+                                cursor: "pointer"
+                            }}
                         >
                             ← Back to Buses
                         </button>

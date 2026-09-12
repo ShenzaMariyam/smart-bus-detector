@@ -10,10 +10,6 @@ function BusCard({ bus }) {
       <p>{bus.route}</p>
 
       <p>
-        <strong>ETA:</strong> {bus.eta} minutes
-      </p>
-
-      <p>
         <strong>Status:</strong> {bus.status}
       </p>
 
@@ -31,10 +27,6 @@ function BusCard({ bus }) {
 
           <p>
             <strong>Route:</strong> {bus.route}
-          </p>
-
-          <p>
-            <strong>Estimated Arrival:</strong> {bus.eta} minutes
           </p>
 
           <p>
