@@ -10,6 +10,11 @@ function BusCard({ bus }) {
       <p>{bus.route}</p>
 
       <p>
+        <strong>Destination:</strong>{" "}
+        {bus.route?.split("→")[1]?.trim() || "Destination"}
+      </p>
+
+      <p>
         <strong>Status:</strong> {bus.status}
       </p>
 
@@ -27,6 +32,11 @@ function BusCard({ bus }) {
 
           <p>
             <strong>Route:</strong> {bus.route}
+          </p>
+
+          <p>
+            <strong>Destination:</strong>{" "}
+            {bus.route?.split("→")[1]?.trim() || "Destination"}
           </p>
 
           <p>

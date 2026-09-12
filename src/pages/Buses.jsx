@@ -286,9 +286,9 @@ function Buses({ onNavigate }) {
 
                   <p>
                     <strong>
-                      Distance:
+                      Destination:
                     </strong>{" "}
-                    {distance.toFixed(2)} km
+                    {bus.route?.split("→")[1]?.trim() || "Destination"}
                   </p>
 
                   <p>
@@ -298,48 +298,45 @@ function Buses({ onNavigate }) {
                     {bus.status}
                   </p>
 
-                  <p>
-                    <strong>
-                      Speed:
-                    </strong>{" "}
-                    {bus.speed} km/h
-                  </p>
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+                    <button
+                      onClick={() =>
+                        onNavigate(
+                          `/buses/${bus.id}`
+                        )
+                      }
+                    >
+                      View Details
+                    </button>
 
-                  <p>
-                    <strong>
-                      Location:
-                    </strong>{" "}
-                    {bus.latitude},{" "}
-                    {bus.longitude}
-                  </p>
+                    <button
+                      onClick={() => onNavigate("/map")}
+                      style={{
+                        backgroundColor: "#FFEBEE",
+                        color: "#B71C1C",
+                        border: "1px solid #FFCDD2"
+                      }}
+                    >
+                      🗺️ View on Map
+                    </button>
 
-                  <button
-                    onClick={() =>
-                      onNavigate(
-                        `/buses/${bus.id}`
-                      )
-                    }
-                  >
-                    View Details
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updateBusLocation(
-                        bus.id,
-                        bus.latitude + 0.001,
-                        bus.longitude + 0.001
-                      )
-                    }
-                    style={{
-                      marginLeft: "10px",
-                      backgroundColor: "#FFFFFF",
-                      color: "#D32F2F",
-                      border: "1px solid #D32F2F"
-                    }}
-                  >
-                    Move Bus
-                  </button>
+                    <button
+                      onClick={() =>
+                        updateBusLocation(
+                          bus.id,
+                          bus.latitude + 0.001,
+                          bus.longitude + 0.001
+                        )
+                      }
+                      style={{
+                        backgroundColor: "#FFFFFF",
+                        color: "#D32F2F",
+                        border: "1px solid #D32F2F"
+                      }}
+                    >
+                      Move Bus
+                    </button>
+                  </div>
                 </div>
               );
             })}
