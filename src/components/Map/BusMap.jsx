@@ -6,6 +6,7 @@ import {
     Marker,
     Popup,
     Polyline,
+    CircleMarker,
     useMap
 } from "react-leaflet";
 
@@ -13,16 +14,16 @@ import L from "leaflet";
 
 import "leaflet/dist/leaflet.css";
 
-import { listenToBuses } from "../../services/firebase/busService";
-
 import {
-    getRoute,
+    getRoutes,
     getRoadRoute
 } from "../../services/firebase/routeService";
 
 
-
+// --------------------------------------------------
 // Fix Leaflet marker icons in Vite
+// --------------------------------------------------
+
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -37,89 +38,152 @@ L.Icon.Default.mergeOptions({
 });
 
 
+// --------------------------------------------------
+// Create bus icon with route number
+// Example:
+// 27A
+// 🚌
+// --------------------------------------------------
 
-// Bus icon
-const busIcon = L.divIcon({
-    className: "bus-map-icon",
-    html: `
-        <div style="
-            font-size: 38px;
-            line-height: 38px;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        ">
-            🚌
-        </div>
-    `,
-    iconSize: [45, 45],
-    iconAnchor: [22, 22],
-    popupAnchor: [0, -22]
-});
+function createRouteIcon(routeNumber, selected = false) {
+
+    return L.divIcon({
+
+        className: "route-bus-marker",
+
+        html: `
+            <div style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 62px;
+                height: 62px;
+            ">
+
+                <div style="
+                    background: ${selected ? "#D32F2F" : "#1976D2"};
+                    color: white;
+                    padding: 4px 9px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    min-width: 38px;
+                    text-align: center;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    margin-bottom: -4px;
+                    z-index: 2;
+                ">
+                    ${routeNumber}
+                </div>
+
+                <div style="
+                    font-size: 30px;
+                    line-height: 30px;
+                    filter: drop-shadow(
+                        0 2px 2px rgba(0,0,0,0.3)
+                    );
+                ">
+                    🚌
+                </div>
+
+            </div>
+        `,
+
+        iconSize: [62, 62],
+
+        iconAnchor: [31, 31],
+
+        popupAnchor: [0, -30]
+    });
+}
 
 
-
+// --------------------------------------------------
 // Automatically fit map to selected route
+// --------------------------------------------------
+
 function RouteAutoFit({ coordinates }) {
+
     const map = useMap();
 
     useEffect(() => {
-        if (!coordinates || coordinates.length < 2) {
+
+        if (
+            !coordinates ||
+            coordinates.length < 2
+        ) {
             return;
         }
 
-        const bounds = L.latLngBounds(coordinates);
+        const bounds =
+            L.latLngBounds(coordinates);
 
-        map.fitBounds(bounds, {
-            padding: [30, 30]
-        });
+        map.fitBounds(
+            bounds,
+            {
+                padding: [40, 40]
+            }
+        );
 
         console.log(
             "🗺️ Map fitted to selected route."
         );
 
-    }, [coordinates, map]);
+    }, [
+        coordinates,
+        map
+    ]);
 
     return null;
 }
 
 
+// --------------------------------------------------
+// Main Bus Map
+// --------------------------------------------------
 
 function BusMap() {
 
-    const [buses, setBuses] = useState([]);
+    // All routes
+    const [routes, setRoutes] =
+        useState([]);
 
-    const [selectedBus, setSelectedBus] = useState(null);
+    // Selected route
+    const [selectedRoute, setSelectedRoute] =
+        useState(null);
 
-    const [route, setRoute] = useState(null);
+    // Road-following coordinates
+    const [roadRoute, setRoadRoute] =
+        useState([]);
 
-    const [roadRoute, setRoadRoute] = useState([]);
+    // Route selected from URL
+    const [urlRouteId, setUrlRouteId] =
+        useState(null);
 
-    const [urlBusId, setUrlBusId] = useState(null);
+    // Loading state
+    const [loading, setLoading] =
+        useState(true);
 
-    const [urlRouteId, setUrlRouteId] = useState(null);
 
+    // --------------------------------------------------
+    // Read route ID from URL
+    //
+    // Example:
+    // /map?route=city_route_27A
+    // --------------------------------------------------
 
-
-    // Read bus or route ID from URL
     useEffect(() => {
 
-        const params = new URLSearchParams(
-            window.location.search
-        );
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
 
-        const busId = params.get("bus");
-        const routeId = params.get("route");
+        const routeId =
+            params.get("route");
 
-        setUrlBusId(busId);
         setUrlRouteId(routeId);
-
-        console.log(
-            "🔎 Bus ID from URL:",
-            busId
-        );
 
         console.log(
             "🔎 Route ID from URL:",
@@ -129,178 +193,129 @@ function BusMap() {
     }, []);
 
 
+    // --------------------------------------------------
+    // Load ALL routes from Firebase
+    // --------------------------------------------------
 
-    // Listen to buses from Firebase
     useEffect(() => {
 
-        const unsubscribe = listenToBuses((data) => {
+        async function loadRoutes() {
 
-            setBuses(data);
+            try {
 
-            console.log(
-                "🚌 Buses received by map:",
-                data
-            );
+                setLoading(true);
 
-        });
+                const data =
+                    await getRoutes();
 
-        return () => {
-            unsubscribe();
-        };
+                console.log(
+                    "🛣️ Routes loaded from Firebase:",
+                    data
+                );
+
+                setRoutes(data);
+
+                setLoading(false);
+
+            } catch (error) {
+
+                console.error(
+                    "❌ Failed to load routes:",
+                    error
+                );
+
+                setLoading(false);
+            }
+        }
+
+        loadRoutes();
 
     }, []);
 
 
+    // --------------------------------------------------
+    // Select route from URL
+    // --------------------------------------------------
 
-    // Select bus from URL
     useEffect(() => {
 
-        if (!urlBusId || buses.length === 0) {
+        if (
+            !urlRouteId ||
+            routes.length === 0
+        ) {
             return;
         }
 
-        console.log(
-            "🔎 Looking for bus:",
-            urlBusId
-        );
-
-        const bus = buses.find(
-            (item) => item.id === urlBusId
-        );
-
-        if (bus) {
-
-            console.log(
-                "✅ Bus selected:",
-                bus
+        const route =
+            routes.find(
+                (item) =>
+                    item.id === urlRouteId
             );
 
-            setSelectedBus(bus);
+        if (route) {
+
+            console.log(
+                "✅ Route selected from URL:",
+                route
+            );
+
+            setSelectedRoute(route);
 
         } else {
 
             console.error(
-                "❌ Bus ID not found in Firebase:",
-                urlBusId
+                "❌ Route not found:",
+                urlRouteId
             );
 
         }
 
-    }, [urlBusId, buses]);
+    }, [
+        urlRouteId,
+        routes
+    ]);
 
 
+    // --------------------------------------------------
+    // Load road route whenever selected route changes
+    // --------------------------------------------------
 
-    // Load route from bus OR route URL
     useEffect(() => {
 
-        async function loadRoute() {
+        async function loadSelectedRoadRoute() {
+
+            if (!selectedRoute) {
+
+                setRoadRoute([]);
+
+                return;
+            }
+
+            if (
+                !selectedRoute.points ||
+                selectedRoute.points.length < 2
+            ) {
+
+                console.error(
+                    "❌ Selected route does not have enough points."
+                );
+
+                setRoadRoute([]);
+
+                return;
+            }
 
             try {
 
-                let routeId = null;
-
-
-
-                // If a route was selected from Buses page
-                if (urlRouteId) {
-
-                    routeId = urlRouteId;
-
-                    console.log(
-                        "🛣️ Loading route directly:",
-                        routeId
-                    );
-
-                }
-
-
-
-                // If a bus was selected
-                else if (selectedBus) {
-
-                    routeId =
-                        selectedBus.routeId;
-
-                    console.log(
-                        "🛣️ Loading route for bus:",
-                        routeId
-                    );
-
-                }
-
-
-
-                if (!routeId) {
-
-                    setRoute(null);
-                    setRoadRoute([]);
-
-                    return;
-                }
-
-
-
-                // Get route from Firebase
-                const routeData =
-                    await getRoute(routeId);
-
-
-
-                if (!routeData) {
-
-                    console.error(
-                        "❌ Route document not found:",
-                        routeId
-                    );
-
-                    setRoute(null);
-                    setRoadRoute([]);
-
-                    return;
-                }
-
-
-
                 console.log(
-                    "✅ Route loaded:",
-                    routeData
+                    "🛣️ Requesting road route for:",
+                    selectedRoute.id
                 );
-
-                setRoute(routeData);
-
-
-
-                // Check route points
-                if (
-                    !routeData.points ||
-                    routeData.points.length < 2
-                ) {
-
-                    console.error(
-                        "❌ Not enough route points:",
-                        routeData.points
-                    );
-
-                    setRoadRoute([]);
-
-                    return;
-                }
-
-
-
-                // Get road-following route
-                console.log(
-                    "🛣️ Requesting road-following route..."
-                );
-
-
 
                 const roadCoordinates =
                     await getRoadRoute(
-                        routeData.points
+                        selectedRoute.points
                     );
-
-
 
                 if (
                     roadCoordinates &&
@@ -320,7 +335,7 @@ function BusMap() {
                 } else {
 
                     console.error(
-                        "❌ Road route returned no usable coordinates"
+                        "❌ OSRM returned no usable route."
                     );
 
                     setRoadRoute([]);
@@ -330,46 +345,65 @@ function BusMap() {
             } catch (error) {
 
                 console.error(
-                    "❌ Error loading route:",
+                    "❌ Failed to load road route:",
                     error
                 );
 
-                setRoute(null);
                 setRoadRoute([]);
 
             }
+        }
+
+        loadSelectedRoadRoute();
+
+    }, [
+        selectedRoute
+    ]);
+
+
+    // --------------------------------------------------
+    // Get route number
+    // --------------------------------------------------
+
+    const getRouteNumber = (route) => {
+
+        if (route.routeNumber) {
+            return route.routeNumber;
+        }
+
+        if (route.number) {
+            return route.number;
+        }
+
+        if (route.name) {
+            return route.name;
+        }
+
+        if (route.id) {
+
+            return route.id.replace(
+                "city_route_",
+                ""
+            );
 
         }
 
+        return "Bus";
+    };
 
 
-        loadRoute();
+    // --------------------------------------------------
+    // Get selected route coordinates
+    // --------------------------------------------------
 
-    }, [selectedBus, urlRouteId]);
-
-
-
-    // Only buses with valid coordinates
-    const busesWithLocation =
-        buses.filter(
-            (bus) =>
-                Number.isFinite(
-                    Number(bus.latitude)
-                ) &&
-                Number.isFinite(
-                    Number(bus.longitude)
-                )
-        );
-
-
-
-    // Original stop coordinates
-    const routeCoordinates =
-        route?.points
-            ?.map((point) => [
-                Number(point.latitude),
-                Number(point.longitude)
-            ])
+    const selectedRouteCoordinates =
+        selectedRoute?.points
+            ?.map(
+                (point) => [
+                    Number(point.latitude),
+                    Number(point.longitude)
+                ]
+            )
             .filter(
                 (point) =>
                     Number.isFinite(point[0]) &&
@@ -377,30 +411,195 @@ function BusMap() {
             ) || [];
 
 
+    // --------------------------------------------------
+    // Get stop name
+    //
+    // Different route documents may store the stop
+    // name differently, so check common fields.
+    // --------------------------------------------------
 
-    console.log(
-        "📍 Stop coordinates:",
-        routeCoordinates
-    );
+    const getStopName = (
+        point,
+        index
+    ) => {
+
+        if (point.name) {
+            return point.name;
+        }
+
+        if (point.stopName) {
+            return point.stopName;
+        }
+
+        if (point.stop) {
+            return point.stop;
+        }
+
+        if (point.title) {
+            return point.title;
+        }
+
+        return `Stop ${index + 1}`;
+    };
 
 
+    // --------------------------------------------------
+    // Get valid stops from selected route
+    // --------------------------------------------------
 
-    console.log(
-        "🛣️ Road route coordinates:",
-        roadRoute
-    );
+    const selectedStops =
+        selectedRoute?.points
+            ?.map(
+                (point, index) => {
+
+                    const latitude =
+                        Number(
+                            point.latitude
+                        );
+
+                    const longitude =
+                        Number(
+                            point.longitude
+                        );
+
+                    if (
+                        !Number.isFinite(
+                            latitude
+                        ) ||
+                        !Number.isFinite(
+                            longitude
+                        )
+                    ) {
+                        return null;
+                    }
+
+                    return {
+                        ...point,
+
+                        latitude,
+
+                        longitude,
+
+                        stopName:
+                            getStopName(
+                                point,
+                                index
+                            ),
+
+                        stopNumber:
+                            index + 1
+                    };
+                }
+            )
+            .filter(
+                Boolean
+            ) || [];
 
 
+    // --------------------------------------------------
+    // Mangaluru map center
+    // --------------------------------------------------
 
-    // Mangaluru center
     const mapCenter = [
         12.9141,
         74.8560
     ];
 
 
+    // --------------------------------------------------
+    // Select a route
+    // --------------------------------------------------
+
+    const handleRouteClick = (
+        route
+    ) => {
+
+        console.log(
+            "🚌 Route clicked:",
+            route
+        );
+
+        setSelectedRoute(
+            route
+        );
+
+        setUrlRouteId(
+            route.id
+        );
+
+
+        // Update browser URL
+        const newUrl =
+            `/map?route=${route.id}`;
+
+        window.history.pushState(
+            {},
+            "",
+            newUrl
+        );
+
+    };
+
+
+    // --------------------------------------------------
+    // Get marker position for each route
+    //
+    // The marker is placed at the first valid
+    // coordinate of that route.
+    // --------------------------------------------------
+
+    const getRouteMarkerPosition = (
+        route
+    ) => {
+
+        if (
+            !route.points ||
+            route.points.length === 0
+        ) {
+            return null;
+        }
+
+        for (
+            const point
+            of route.points
+        ) {
+
+            const latitude =
+                Number(
+                    point.latitude
+                );
+
+            const longitude =
+                Number(
+                    point.longitude
+                );
+
+            if (
+                Number.isFinite(
+                    latitude
+                ) &&
+                Number.isFinite(
+                    longitude
+                )
+            ) {
+
+                return [
+                    latitude,
+                    longitude
+                ];
+            }
+        }
+
+        return null;
+    };
+
+
+    // --------------------------------------------------
+    // Render
+    // --------------------------------------------------
 
     return (
+
         <div
             style={{
                 width: "100%",
@@ -424,120 +623,425 @@ function BusMap() {
                 />
 
 
+                {/* ------------------------------------------
+                    Automatically fit selected route
+                ------------------------------------------ */}
 
-                <RouteAutoFit
-                    coordinates={roadRoute}
-                />
+                {selectedRoute &&
+                    roadRoute.length >= 2 && (
+
+                    <RouteAutoFit
+                        coordinates={
+                            roadRoute
+                        }
+                    />
+
+                )}
 
 
+                {/* ------------------------------------------
+                    Selected road route
+                ------------------------------------------ */}
 
-                {/* Selected route */}
-                {roadRoute.length >= 2 && (
+                {selectedRoute &&
+                    roadRoute.length >= 2 && (
 
                     <Polyline
-                        positions={roadRoute}
+                        positions={
+                            roadRoute
+                        }
                         pathOptions={{
                             color: "#D32F2F",
-                            weight: 5
+                            weight: 5,
+                            opacity: 0.9
                         }}
                     />
 
                 )}
 
 
+                {/* ------------------------------------------
+                    Fallback route
+                ------------------------------------------ */}
 
-                {/* Fallback route */}
-                {roadRoute.length < 2 &&
-                    routeCoordinates.length >= 2 && (
+                {selectedRoute &&
+                    roadRoute.length < 2 &&
+                    selectedRouteCoordinates.length >= 2 && (
 
                     <Polyline
-                        positions={routeCoordinates}
+                        positions={
+                            selectedRouteCoordinates
+                        }
                         pathOptions={{
                             color: "#D32F2F",
-                            weight: 5
+                            weight: 5,
+                            opacity: 0.9
                         }}
                     />
 
                 )}
 
 
+                {/* ------------------------------------------
+                    STOP MARKERS
 
-                {/* Bus markers */}
-                {busesWithLocation.map(
-                    (bus) => (
+                    These appear ONLY for the selected route.
+                ------------------------------------------ */}
 
-                        <Marker
-                            key={bus.id}
-                            position={[
-                                Number(bus.latitude),
-                                Number(bus.longitude)
-                            ]}
-                            icon={busIcon}
-                            eventHandlers={{
-                                click: () => {
+                {selectedStops.map(
+                    (stop) => (
 
-                                    setSelectedBus(bus);
-                                    setUrlRouteId(null);
+                    <CircleMarker
+                        key={
+                            `${selectedRoute.id}-${stop.stopNumber}`
+                        }
 
-                                    console.log(
-                                        "🚌 Bus clicked:",
-                                        bus
-                                    );
+                        center={[
+                            stop.latitude,
+                            stop.longitude
+                        ]}
 
+                        radius={7}
+
+                        pathOptions={{
+                            color: "#D32F2F",
+                            fillColor: "#FFFFFF",
+                            fillOpacity: 1,
+                            weight: 3
+                        }}
+                    >
+
+                        <Popup>
+
+                            <div
+                                style={{
+                                    minWidth:
+                                        "180px"
+                                }}
+                            >
+
+                                <h4
+                                    style={{
+                                        margin:
+                                            "0 0 8px 0",
+                                        color:
+                                            "#D32F2F"
+                                    }}
+                                >
+                                    📍 Stop{" "}
+                                    {stop.stopNumber}
+                                </h4>
+
+
+                                <p
+                                    style={{
+                                        margin:
+                                            "5px 0"
+                                    }}
+                                >
+                                    <strong>
+                                        {stop.stopName}
+                                    </strong>
+                                </p>
+
+
+                                <p
+                                    style={{
+                                        margin:
+                                            "5px 0",
+                                        fontSize:
+                                            "12px",
+                                        color:
+                                            "#666"
+                                    }}
+                                >
+                                    Route{" "}
+                                    {
+                                        getRouteNumber(
+                                            selectedRoute
+                                        )
+                                    }
+                                </p>
+
+                            </div>
+
+                        </Popup>
+
+                    </CircleMarker>
+
+                ))}
+
+
+                {/* ------------------------------------------
+                    ALL ROUTE BUS ICONS
+                ------------------------------------------ */}
+
+                {routes.map(
+                    (route) => {
+
+                        const position =
+                            getRouteMarkerPosition(
+                                route
+                            );
+
+                        if (!position) {
+                            return null;
+                        }
+
+                        const routeNumber =
+                            getRouteNumber(
+                                route
+                            );
+
+                        const isSelected =
+                            selectedRoute?.id ===
+                            route.id;
+
+
+                        return (
+
+                            <Marker
+                                key={
+                                    route.id
                                 }
-                            }}
-                        >
 
-                            <Popup>
+                                position={
+                                    position
+                                }
 
-                                <strong>
-                                    🚌 Route {bus.routeNumber}
-                                </strong>
+                                icon={
+                                    createRouteIcon(
+                                        routeNumber,
+                                        isSelected
+                                    )
+                                }
 
-                                <br />
+                                eventHandlers={{
 
-                                Registration:{" "}
-                                {bus.registrationNumber}
+                                    // --------------------------------
+                                    // Hover over route icon
+                                    // --------------------------------
 
-                                <br />
+                                    mouseover: (
+                                        event
+                                    ) => {
 
-                                Route:{" "}
-                                {bus.startPoint} →{" "}
-                                {bus.destination}
+                                        event.target
+                                            .openPopup();
 
-                                <br />
+                                    },
 
-                                Status:{" "}
-                                {bus.status}
 
-                                <br />
+                                    // --------------------------------
+                                    // Move mouse away
+                                    // --------------------------------
 
-                                <strong>
-                                    Click the bus to show its route
-                                </strong>
+                                    mouseout: (
+                                        event
+                                    ) => {
 
-                            </Popup>
+                                        event.target
+                                            .closePopup();
 
-                        </Marker>
+                                    },
 
-                    )
+
+                                    // --------------------------------
+                                    // Click route
+                                    // --------------------------------
+
+                                    click: () => {
+
+                                        handleRouteClick(
+                                            route
+                                        );
+
+                                    }
+
+                                }}
+                            >
+
+                                <Popup>
+
+                                    <div
+                                        style={{
+                                            minWidth:
+                                                "220px"
+                                        }}
+                                    >
+
+                                        <h3
+                                            style={{
+                                                margin:
+                                                    "0 0 10px 0",
+                                                color:
+                                                    "#D32F2F"
+                                            }}
+                                        >
+                                            🚌 Route{" "}
+                                            {
+                                                routeNumber
+                                            }
+                                        </h3>
+
+
+                                        {/* From */}
+
+                                        {route.startPoint && (
+
+                                            <p>
+                                                <strong>
+                                                    From:
+                                                </strong>{" "}
+                                                {
+                                                    route.startPoint
+                                                }
+                                            </p>
+
+                                        )}
+
+
+                                        {/* Destination */}
+
+                                        {route.destination && (
+
+                                            <p>
+                                                <strong>
+                                                    To:
+                                                </strong>{" "}
+                                                {
+                                                    route.destination
+                                                }
+                                            </p>
+
+                                        )}
+
+
+                                        {/* Stops */}
+
+                                        {route.points && (
+
+                                            <p>
+                                                <strong>
+                                                    Stops:
+                                                </strong>{" "}
+                                                {
+                                                    route.points
+                                                        .filter(
+                                                            (
+                                                                point
+                                                            ) =>
+                                                                Number.isFinite(
+                                                                    Number(
+                                                                        point.latitude
+                                                                    )
+                                                                ) &&
+                                                                Number.isFinite(
+                                                                    Number(
+                                                                        point.longitude
+                                                                    )
+                                                                )
+                                                        )
+                                                        .length
+                                                }
+                                            </p>
+
+                                        )}
+
+
+                                        {/* Route ID */}
+
+                                        <p>
+                                            <strong>
+                                                Route ID:
+                                            </strong>{" "}
+                                            {
+                                                route.id
+                                            }
+                                        </p>
+
+
+                                        {/* Button */}
+
+                                        <button
+                                            onClick={() =>
+                                                handleRouteClick(
+                                                    route
+                                                )
+                                            }
+
+                                            style={{
+                                                width:
+                                                    "100%",
+                                                padding:
+                                                    "8px",
+                                                backgroundColor:
+                                                    "#D32F2F",
+                                                color:
+                                                    "white",
+                                                border:
+                                                    "none",
+                                                borderRadius:
+                                                    "5px",
+                                                cursor:
+                                                    "pointer",
+                                                fontWeight:
+                                                    "bold"
+                                            }}
+                                        >
+                                            🗺️ View Route
+                                        </button>
+
+                                    </div>
+
+                                </Popup>
+
+                            </Marker>
+
+                        );
+
+                    }
                 )}
 
             </MapContainer>
 
 
+            {/* ------------------------------------------
+                Loading
+            ------------------------------------------ */}
 
-            {buses.length > 0 &&
-                busesWithLocation.length === 0 && (
+            {loading && (
 
                 <p
                     style={{
-                        textAlign: "center",
-                        marginTop: "10px"
+                        textAlign:
+                            "center",
+                        marginTop:
+                            "10px"
                     }}
                 >
-                    🚌 Bus routes loaded. Live GPS
-                    locations are not available yet.
+                    🚌 Loading bus routes...
+                </p>
+
+            )}
+
+
+            {/* ------------------------------------------
+                No routes
+            ------------------------------------------ */}
+
+            {!loading &&
+                routes.length === 0 && (
+
+                <p
+                    style={{
+                        textAlign:
+                            "center",
+                        marginTop:
+                            "10px"
+                    }}
+                >
+                    🚌 No bus routes available.
                 </p>
 
             )}
@@ -545,7 +1049,6 @@ function BusMap() {
         </div>
     );
 }
-
 
 
 export default BusMap;
