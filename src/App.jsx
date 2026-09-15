@@ -8,6 +8,7 @@ import SplashScreen from "./components/SplashScreen";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
+
   const [currentPath, setCurrentPath] = useState(
     window.location.pathname
   );
@@ -29,7 +30,7 @@ function App() {
 
   const navigate = (path) => {
     window.history.pushState({}, "", path);
-    setCurrentPath(path);
+    setCurrentPath(window.location.pathname);
   };
 
   const renderContent = () => {
@@ -55,7 +56,10 @@ function App() {
     }
 
     // Map
-    if (currentPath === "/map") {
+    // Using startsWith allows:
+    // /map
+    // /map?bus=123
+    if (currentPath.startsWith("/map")) {
       return <MapPage />;
     }
 
@@ -70,8 +74,11 @@ function App() {
   return (
     <>
       {showSplash && (
-        <SplashScreen onFinish={() => setShowSplash(false)} />
+        <SplashScreen
+          onFinish={() => setShowSplash(false)}
+        />
       )}
+
       {renderContent()}
     </>
   );

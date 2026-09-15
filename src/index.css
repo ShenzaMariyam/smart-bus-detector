@@ -740,6 +740,22 @@ nav a:hover {
   box-shadow: 0 2px 8px rgba(211, 47, 47, 0.2) !important;
 }
 
+.bus-map-icon {
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.bus-icon-marker {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bus-icon-marker:hover {
+  transform: scale(1.25);
+}
+
 /* =========================
    SPLASH SCREEN (HORIZONTAL ROUTE)
 ========================= */

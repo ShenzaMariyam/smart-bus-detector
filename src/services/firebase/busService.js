@@ -8,6 +8,7 @@ import {
 
 import { db } from "./firebase";
 
+
 export async function getBuses() {
     const snapshot = await getDocs(
         collection(db, "buses")
@@ -19,46 +20,59 @@ export async function getBuses() {
     }));
 }
 
+
 export function listenToBuses(callback) {
     return onSnapshot(
         collection(db, "buses"),
         (snapshot) => {
-            const buses = snapshot.docs.map((document) => ({
-                id: document.id,
-                ...document.data()
-            }));
+
+            const buses = snapshot.docs.map(
+                (document) => ({
+                    id: document.id,
+                    ...document.data()
+                })
+            );
 
             callback(buses);
         }
     );
 }
 
+
 export async function updateBusLocation(
     busId,
     latitude,
-    longitude,
-    eta
+    longitude
 ) {
     try {
-        const busRef = doc(db, "buses", busId);
 
-        await updateDoc(busRef, {
-            latitude: latitude,
-            longitude: longitude,
-            eta: eta
-        });
+        const busRef = doc(
+            db,
+            "buses",
+            busId
+        );
+
+        await updateDoc(
+            busRef,
+            {
+                latitude: latitude,
+                longitude: longitude
+            }
+        );
 
         console.log(
             "✅ Firebase updated:",
             busId,
             latitude,
-            longitude,
-            eta
+            longitude
         );
+
     } catch (error) {
+
         console.error(
             "❌ Firebase update failed:",
             error
         );
+
     }
 }
